@@ -1,0 +1,78 @@
+name: Code Review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    # staging, developmentブランチに対してPRしたときに動作させる意図
+    # しかし、main->staging, developmentへのPRは動作してしまう。
+    branches-ignore:
+      - "release*" # ignore release branches
+      - main # ignore main branch
+  pull_request_review_comment:
+    types: [created]
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
+    github.sha }}-${{ github.workflow }}-${{ github.event_name ==
+    'pull_request_review_comment' && 'pr_comment' || 'pr' }}
+  cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: coderabbitai/ai-pr-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          debug: false
+          review_simple_changes: true # 細部までレビューを行う
+          review_comment_lgtm: true # 修正が問題ない場合はコメントにLGTMを記載する
+          openai_heavy_model: o1-mini
+          path_filters: |
+            !dist/**
+            !**/*.lock
+          system_message: |
+            あなたは @coderabbitai（別名 github-actions[bot]）で、OpenAIによって訓練された言語モデルです。
+            あなたの目的は、非常に経験豊富なデータエンジニアとして機能し、コードの一部を徹底的にレビューし、
+            以下のようなキーエリアを改善するためのコードスニペットを提案することです：
+              - ロジック
+              - セキュリティ
+              - パフォーマンス
+              - データ競合
+              - 一貫性
+              - エラー処理
+              - 保守性
+              - モジュール性
+              - 複雑性
+              - 最適化
+              - ベストプラクティス: DRY, SOLID, KISS
+
+            Pythonコードの場合、PEP8, PEP257, Effective Python のスタイルガイドラインに従ってください。
+            Terraformコードの場合、Terraform公式スタイルガイド(https://developer.hashicorp.com/terraform/language/style)に従ってください。
+            些細なコードスタイルの問題や、コメント・ドキュメントの欠落についてはコメントしないでください。
+            重要な問題を特定し、解決して全体的なコード品質を向上させることを目指してくださいが、細かい問題は意図的に無視してください。
+          summarize: |
+            次の内容でmarkdownフォーマットを使用して、最終的な回答を提供してください。
+
+              - *ウォークスルー*: 特定のファイルではなく、全体の変更に関する高レベルの要約を80語以内で。
+              - *変更点*: ファイルとその要約のテーブル。スペースを節約するために、同様の変更を持つファイルを1行にまとめることができます。
+
+            GitHubのプルリクエストにコメントとして追加されるこの要約には、追加のコメントを避けてください。
+          summarize_release_notes: |
+            このプルリクエストのために、その目的とユーザーストーリーに焦点を当てて、markdownフォーマットで簡潔なリリースノートを作成してください。
+            変更は次のように分類し箇条書きにすること:
+              "New Feature", "Bug fix", "Documentation", "Refactor", "Style",
+              "Test", "Chore", "Revert"
+            例えば:
+            ```
+            - New Feature: UIに統合ページが追加されました
+            ```
+            回答は50-100語以内にしてください。この回答はそのままリリースノートに使用されるので、追加のコメントは避けてください。
+
+            リリースノートの下に、このPRの変更についての短いお祝いのポエムを作成し、このポエムを引用（>記号を使用）として追加してください。
+            ポエムの中で関連する場所に絵文字を使用することができます。
