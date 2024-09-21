@@ -1,0 +1,33 @@
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "venv"]
+line-length = 99
+indent-width = 4
+target-version = "py312"
+select = [
+  # "ALL"
+  "E",   # pycodestyle (`E`)
+  "F",   # Pyflakes (`F`)
+  "I",   # isort (`I`)
+  "ANN", # flake8-annotations (`ANN`)
+  "PLW", # Warning (`PLW`)
+  "UP",  # pyupgrade (`UP`)
+  "A",   # flake8-builtins (`A`)
+  "N",   # pep8-naming (`N`)
+  "D",   # pydocstyle (`D`)
+]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+line-ending = "auto"
+
+[tool.mypy]
+color_output = true
+ignore_missing_imports = true
