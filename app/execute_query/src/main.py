@@ -76,7 +76,7 @@ def main(request: functions_framework.Request) -> str:
     dataset_id = os.environ.get("DATASET_ID")
     table_id = os.environ.get("TABLE_ID")
     bucket_name = os.environ.get("BUCKET_NAME")
-    file_name = os.environ.get("FILE_NAME")
+    file_name = request.args.get("file_name")
 
     # Load SQL query from GCS
     gcs_client = storage.Client()
