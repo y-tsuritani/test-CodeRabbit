@@ -32,6 +32,7 @@ jobs:
           debug: false
           review_simple_changes: true # 細部までレビューを行う
           review_comment_lgtm: true # 修正が問題ない場合はコメントにLGTMを記載する
+          openai_light_model: gpt-4o-mini
           openai_heavy_model: gpt-4o-mini
           path_filters: |
             !dist/**
