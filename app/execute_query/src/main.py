@@ -37,6 +37,29 @@ def load_query_from_gcs(storage_client: storage.Client, bucket_name: str, file_n
     return blob.download_as_string().decode("utf-8")
 
 
+def execute_query(bq_client: bigquery.Client, query: str, table_ref: str) -> None:
+    """Execute SQL query in BigQuery.
+
+    Args:
+        bq_client (bigquery.Client): BigQuery client.
+        query (str): SQL query.
+        table_ref (str): Table reference
+    """
+    try:
+        job_config = bigquery.QueryJobConfig(destination=table_ref)
+        query_job = bq_client.query(query, job_config=job_config)
+        query_job.result()
+    except NotFound as e:
+        logger.error(f"Table not found: {e}")
+        raise e
+    except Forbidden as e:
+        logger.error(f"Access denied: {e}")
+        raise e
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        raise e
+
+
 @functions_framework.http
 def main(request: functions_framework.Request) -> str:
     """HTTP Cloud Function.
@@ -58,4 +81,10 @@ def main(request: functions_framework.Request) -> str:
     # Load SQL query from GCS
     gcs_client = storage.Client()
     query = load_query_from_gcs(gcs_client, bucket_name, file_name)
+
+    # Run query
+    bq_client = bigquery.Client()
+    table_ref = f"{project_id}.{dataset_id}.{table_id}"
+    execute_query(bq_client, query, table_ref)
+
     return "Query executed successfully."
