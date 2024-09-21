@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "execute-query"
+version = "0.1.0"
+description = "execute query on BigQuery from Cloud Functions"
+authors = ["y-tsuritani"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+google-cloud-bigquery = "^3.25.0"
+functions-framework = "^3.8.1"
+google-cloud-storage = "^2.18.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
