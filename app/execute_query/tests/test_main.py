@@ -86,3 +86,26 @@ def test_load_query_from_gcs_unexpected_error(mocker):  # noqa: ANN001, ANN201
     mock_bucket.blob.assert_called_once_with("some_file.sql")
 
 
+# =============================================================================
+# execute_query 関数のテスト
+# =============================================================================
+
+
+def test_execute_query_success(mocker):  # noqa: ANN001, ANN201
+    """正常系: クエリの実行が成功する場合のテスト."""
+    # モックオブジェクトを作成
+    mock_bq_client = mocker.Mock()
+    mock_query_job = mocker.Mock()
+    mock_query_job.result.return_value = None
+
+    # クエリの実行のモックの返り値を設定
+    mock_bq_client.query.return_value = mock_query_job
+    test_query = "SELECT * FROM `test_dataset.test_table`;"
+    mock_table_ref = "test_project.test_dataset.test_table"
+    # 関数を実行して結果を確認
+    execute_query(mock_bq_client, test_query, mock_table_ref)
+
+    # モックが正しく呼び出されたことを確認
+    mock_bq_client.query.assert_called_once_with(test_query, job_config=mocker.ANY)
+    mock_query_job.result.assert_called_once()
+
