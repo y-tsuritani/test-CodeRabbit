@@ -27,3 +27,23 @@ def test_load_query_from_gcs_success(mocker):  # noqa: ANN001, ANN201
     mock_storage_client.bucket.assert_called_once_with("test_bucket")
     mock_bucket.blob.assert_called_once_with("test_file.sql")
     mock_blob.download_as_string.assert_called_once()
+
+
+def test_load_query_from_gcs_not_found(mocker):  # noqa: ANN001, ANN201
+    """404 Not Found エラーが発生する場合のテスト."""
+    # モックオブジェクトを作成
+    mock_storage_client = mocker.Mock()
+    mock_bucket = mocker.Mock()
+
+    # NotFound エラーを発生させる
+    mock_storage_client.bucket.return_value = mock_bucket
+    mock_bucket.blob.side_effect = NotFound("Bucket or file not found")
+
+    # 例外が正しく発生するかを確認
+    with pytest.raises(NotFound):
+        load_query_from_gcs(mock_storage_client, "test_bucket", "non_existent_file.sql")
+
+    # モックが正しく呼び出されたことを確認
+    mock_storage_client.bucket.assert_called_once_with("test_bucket")
+    mock_bucket.blob.assert_called_once_with("non_existent_file.sql")
+
