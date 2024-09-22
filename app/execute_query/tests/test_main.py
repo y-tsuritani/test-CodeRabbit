@@ -47,3 +47,22 @@ def test_load_query_from_gcs_not_found(mocker):  # noqa: ANN001, ANN201
     mock_storage_client.bucket.assert_called_once_with("test_bucket")
     mock_bucket.blob.assert_called_once_with("non_existent_file.sql")
 
+
+def test_load_query_from_gcs_forbidden(mocker):  # noqa: ANN001, ANN201
+    """403 Forbidden エラーのテスト."""
+    # モックオブジェクトを作成
+    mock_storage_client = mocker.Mock()
+    mock_bucket = mocker.Mock()
+
+    # Forbidden エラーを発生させる
+    mock_storage_client.bucket.return_value = mock_bucket
+    mock_bucket.blob.side_effect = Forbidden("Access denied")
+
+    # 例外が正しく発生するかを確認
+    with pytest.raises(Forbidden):
+        load_query_from_gcs(mock_storage_client, "test_bucket", "restricted_file.sql")
+
+    # モックが正しく呼び出されたことを確認
+    mock_storage_client.bucket.assert_called_once_with("test_bucket")
+    mock_bucket.blob.assert_called_once_with("restricted_file.sql")
+
