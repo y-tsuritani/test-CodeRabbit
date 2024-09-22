@@ -26,13 +26,13 @@ def load_query_from_gcs(storage_client: storage.Client, bucket_name: str, file_n
         blob = bucket.blob(file_name)
     except NotFound as e:
         logger.error(f"Bucket or file not found: {e}")
-        raise e
+        raise NotFound(f"Bucket or file not found: {e}") from e
     except Forbidden as e:
         logger.error(f"Access denied: {e}")
-        raise e
+        raise Forbidden(f"Access denied: {e}") from e
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
-        raise e
+        raise RuntimeError(f"An unexpected error occurred: {e}") from e
 
     return blob.download_as_string().decode("utf-8")
 
@@ -51,13 +51,13 @@ def execute_query(bq_client: bigquery.Client, query: str, table_ref: str) -> Non
         query_job.result()
     except NotFound as e:
         logger.error(f"Table not found: {e}")
-        raise e
+        raise NotFound(f"Table not found: {e}") from e
     except Forbidden as e:
         logger.error(f"Access denied: {e}")
-        raise e
+        raise Forbidden(f"Access denied: {e}") from e
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
-        raise e
+        raise RuntimeError(f"An unexpected error occurred: {e}") from e
 
 
 @functions_framework.http
