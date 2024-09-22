@@ -128,3 +128,21 @@ def test_execute_query_not_found(mocker):  # noqa: ANN001, ANN201
     # モックが正しく呼び出されたことを確認
     mock_bq_client.query.assert_called_once_with(test_query, job_config=mocker.ANY)
 
+
+def test_execute_query_forbidden(mocker):  # noqa: ANN001, ANN201
+    """403 Forbidden エラーのテスト."""
+    # モックオブジェクトを作成
+    mock_bq_client = mocker.Mock()
+
+    test_query = "SELECT * FROM `test_dataset.test_table`;"
+    mock_table_ref = "test_project.test_dataset.test_table"
+
+    # Forbidden エラーを発生させる
+    mock_bq_client.query.side_effect = Forbidden("Access denied")
+
+    # 例外が正しく発生するかを確認
+    with pytest.raises(Forbidden):
+        execute_query(mock_bq_client, test_query, mock_table_ref)
+
+    # モックが正しく呼び出されたことを確認
+    mock_bq_client.query.assert_called_once_with(test_query, job_config=mocker.ANY)
