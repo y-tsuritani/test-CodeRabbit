@@ -34,9 +34,31 @@ jobs:
           review_comment_lgtm: true # 修正が問題ない場合はコメントにLGTMを記載する
           openai_light_model: gpt-4o-mini
           openai_heavy_model: gpt-4o-mini
+          openai_timeout_ms: 900000 # 15分.
+          language: ja-JP
           path_filters: |
             !dist/**
             !**/*.lock
+            !db/**
+            !**/*.csv
+            !**/*.tsv
+            !**/*.gz
+            !**/*.zip
+            !**/*.docx
+            !**/*.xlsx
+            !**/*.pyc
+            !**/*.toml
+            !**/*.json
+            !**/*.mmd
+            !**/*.svg
+            !**/*.jpeg
+            !**/*.jpg
+            !**/*.png
+            !**/*.gif
+            !**/*.bmp
+            !**/*.tiff
+            !**/*.tfstate
+            !**/*.tfstate.backup
           system_message: |
             あなたは @coderabbitai（別名 github-actions[bot]）で、OpenAIによって訓練された言語モデルです。
             あなたの目的は、非常に経験豊富なデータエンジニアとして機能し、コードの一部を徹底的にレビューし、
