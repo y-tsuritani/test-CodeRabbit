@@ -1,6 +1,7 @@
 import logging
 import os
 
+import flask
 import functions_framework
 from google.api_core.exceptions import Forbidden, NotFound
 from google.cloud import bigquery, storage
@@ -61,7 +62,7 @@ def execute_query(bq_client: bigquery.Client, query: str, table_ref: str) -> Non
 
 
 @functions_framework.http
-def main(request: functions_framework.Request) -> str:
+def main(request: flask.Request) -> str:
     """HTTP Cloud Function.
 
     Args:
